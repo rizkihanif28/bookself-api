@@ -1,3 +1,4 @@
+/* eslint-disable no-trailing-spaces */
 /* eslint-disable import/no-extraneous-dependencies */
 const { nanoid } = require('nanoid');
 const books = require('./books');
@@ -88,19 +89,58 @@ const getAllBooksHandler = (request, h) => {
         response.code(200);
         return response;
     }
+
+    if (reading !== undefined) {
+        // condition when there is a query reading
+        // filterbook reading
+        const filteredBookReading = books.filter((book) => Boolean(book.reading) === Boolean(reading));
+        const response = h.response({
+            status: 'success',
+            data: {
+                books: filteredBookReading.map((book) => ({
+                    id: book.id,
+                    name: book.name,
+                    publisher: book.publisher,
+                })),
+            },
+        });
+        response.code(200);
+        return response;
+    }
+
+    if (finished !== undefined) {
+        // condition when there is a query reading
+        // filterbook finished
+        const filteredBookFinished = books.filter((book) => Boolean(book.finished) === Boolean(finished));
+
+        const response = h.response({
+            status: 'success',
+            data: {
+                books: filteredBookFinished.map((book) => ({
+                    id: book.id,
+                    name: book.name,
+                    publisher: book.publisher,
+                })),
+            },
+        });
+        response.code(200);
+        return response;
+    }
 };
 const getBookByIdHandler = (request, h) => {
     const { bookId } = request.params;
 
-    const book = books.filter((n) => n.id === bookId)[0];
+    const book = books.find((book) => book.id === bookId);
 
-    if (book) {
-        return {
+    if (book !== undefined) {
+        const response = h.response({
             status: 'success',
             data: {
                 book,
             },
-        };
+        });
+        response.code(200);
+        return response;
     }
     const response = h.response({
         status: 'fail',
@@ -164,4 +204,26 @@ const editBookByIdHandler = (request, h) => {
     return response;
 };
 
-module.exports = { addBooksHandler, getAllBooksHandler, getBookByIdHandler, editBookByIdHandler };
+const deleteBookByIdHandler = (request, h) => {
+    const { bookId } = request.params;
+
+    const indexBook = books.findIndex((book) => book.id === bookId);
+
+    if (indexBook !== -1) {
+        books.splice(indexBook, 1);
+        const response = h.response({
+            status: 'success',
+            message: 'Buku berhasil dihapus',
+        });
+        response.code(200);
+        return response;
+    }
+    const response = h.response({
+        status: 'fail',
+        message: 'Buku gagal dihapus. Id tidak ditemukan',
+    });
+    response.code(404);
+    return response;
+};
+
+module.exports = { addBooksHandler, getAllBooksHandler, getBookByIdHandler, editBookByIdHandler, deleteBookByIdHandler };

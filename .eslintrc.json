@@ -19,6 +19,7 @@
         "spaced-comment": "off",
         "no-use-before-define": "off",
         "consistent-return": "off",
-        "no-shadow": "off"
+        "no-shadow": "off",
+        "no-unreachable": "off"
     }
 }
