@@ -1,5 +1,3 @@
-/* eslint-disable no-trailing-spaces */
-/* eslint-disable import/no-extraneous-dependencies */
 const { nanoid } = require('nanoid');
 const books = require('./books');
 
@@ -72,7 +70,7 @@ const addBooksHandler = (request, h) => {
 };
 
 const getAllBooksHandler = (request, h) => {
-    const { reading, finished } = request.query;
+    const { name, reading, finished } = request.query;
 
     if (!reading && !finished) {
         // condition no query reading & finished
@@ -90,10 +88,28 @@ const getAllBooksHandler = (request, h) => {
         return response;
     }
 
+    if (name !== undefined) {
+        // if there is a query name
+        const filteredBookName = books.filter((book) => book.name.toLowerCase().includes(name.toLowerCase()));
+        const response = h.response({
+            status: 'success',
+            data: {
+                books: filteredBookName.map((book) => ({
+                    id: book.id,
+                    name: book.name,
+                    publisher: book.publisher,
+                })),
+            },
+        });
+        response.code(200);
+        return response;
+    }
+
     if (reading !== undefined) {
-        // condition when there is a query reading
+        // if there is a query reading
         // filterbook reading
-        const filteredBookReading = books.filter((book) => Boolean(book.reading) === Boolean(reading));
+        const filteredBookReading = books.filter((book) => Number(book.reading) === Number(reading));
+
         const response = h.response({
             status: 'success',
             data: {
@@ -109,10 +125,9 @@ const getAllBooksHandler = (request, h) => {
     }
 
     if (finished !== undefined) {
-        // condition when there is a query reading
+        // if there is a query finished
         // filterbook finished
-        const filteredBookFinished = books.filter((book) => Boolean(book.finished) === Boolean(finished));
-
+        const filteredBookFinished = books.filter((book) => Number(book.finished) === Number(finished));
         const response = h.response({
             status: 'success',
             data: {
